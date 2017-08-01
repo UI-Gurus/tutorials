@@ -17,6 +17,7 @@
   * [Stateless Functional Components](#stateless-functional-components)
   * [Advantages of a Stateless Component](#advantages-of-a-stateless-component)
   * [Props](#props)
+  * [Props Validation](#props-validation)
   * [Composing Components](#composing-components)
 * [State](#state)
   * [Adding Local State to a Class](#adding-local-state-to-a-class)
@@ -29,7 +30,7 @@
   * [render()](#render)
   * [constructor()](#constructor)
   * [componentWillMount()](#componentwillmount)
-  * [componentDidMoun()](#componentdidmount)
+  * [componentDidMount()](#componentdidmount)
   * [componentWillReceiveProps()](#componentwillreceiveprops)
   * [shouldComponentUpdate()](#shouldcomponentupdate)
   * [componentWillUpdate()](#componentwillupdate)
@@ -38,6 +39,8 @@
 * [Handling Events](#handling-events)
 * [List and Keys](#list-and-keys)
   * [Keys](#keys)
+* [Controlled Components](#controlled-components)
+* [Lifting State UP](#lifting-state-up)
 
 ## Overview
 
@@ -62,7 +65,9 @@ When you try to update the DOM in React, here is what happen:
 
 ## Installation and Setup
 
-To start coding on React, all you need is to download and install [Node](#https://nodejs.org/en/download/). Also, you will need an IDE that help you on syntax highlighting and make the coding process more comfortable. This IDE is of your choice, it could be [Atom](#https://atom.io/), [Sublime 3](#https://www.sublimetext.com/3), [Visual Code](#https://code.visualstudio.com/) or any other. Whichever you choose, you have to install the respective packages for syntax highlighting, error visualization or any other you want. This ss not a requirement, but you also may want to have a nice terminal if you have not one yet. A good option is [Cmder](#http://cmder.net/) but you can use the one you prefer.
+To start coding on React, all you need is to download and install [Node](https://nodejs.org/en/download/). Also, you will need an IDE that help you on syntax highlighting and make the coding process more comfortable. This IDE is of your choice, it could be [Atom](https://atom.io/), [SublimeText 3](https://www.sublimetext.com/3), [Visual Code](https://code.visualstudio.com/) or any other. Whichever you choose, you have to install the respective packages for syntax highlighting, error visualization or any other you want. This ss not a requirement, but you also may want to have a nice terminal if you have not one yet. A good option is [Cmder](http://cmder.net/) but you can use the one you prefer.
+
+We suggest to use another great tool for React development: **React Developer Tools**. It is an extension available for Google Chrome and Mozilla browsers. With this tool you can inspect all your React's code. It is very useful and you should use it.
 
 There is many ways in which we can start a React project, for this tutorial we have chosen create it through the `create-react-app` npm module. So, just open your terminal, enter on the location where you want to create the project and type the next: `npm install -g create-react-app`, press enter and after a few seconds this module will be installed, then type: `create-react-app [my-first-app]`. Here we are creating our React project named `my-first-app`, this may take some minutes. When it is done, enter in the new folder created and then type: `npm start`. That's it, we have our first React application running on the browser.
 
@@ -142,9 +147,9 @@ What's going on here. Well, JSX in sight! First we defined a function to format 
 
 Try it yourself! Go to `index.js` file and copy the above code replacing the `ReactDOM.render()` method. Now, you would have to see "Hello, Harper Perez!"" on the page
 
-#### Automatic Semicolon Insertion (ASI)
+#### Automatic Semicolon Insertion
 
-In JavaScript, automatic semicolon insertion allows one to omit a semicolon at the end of a line. While you always should write semicolons, knowing how JavaScript handles their omission is important knowledge, because it helps you understand code without semicolons and because it has effects in code with semicolons. The parser treats every new token as part of the current statement, unless there is a semicolon that terminates it. Let's see some examples.
+In JavaScript, automatic semicolon insertion (ASI) allows one to omit a semicolon at the end of a line. While you always should write semicolons, knowing how JavaScript handles their omission is important knowledge, because it helps you understand code without semicolons and because it has effects in code with semicolons. The parser treats every new token as part of the current statement, unless there is a semicolon that terminates it. Let's see some examples.
 
 ```javascript
 a = b + c
@@ -375,6 +380,28 @@ ReactDOM.render(<App name="Charlie"/>, document.getElementById('root'));
 ```
 
 Save this file and now you should see on the page "Hello Charlie". `name` is now an attribute of the `<App />` element and these attributes in React are called props.
+
+#### Prop validation
+
+React has some built-in typechecking abilities. To run typechecking on the props for a component, you can assign the special `propTypes` property:
+
+```javascript
+import PropTypes from 'prop-types';
+
+class Greeting extends React.Component {
+  render() {
+    return (
+      <h1>Hello, {this.props.name}</h1>
+    );
+  }
+}
+
+Greeting.propTypes = {
+  name: PropTypes.string
+};
+```
+
+`PropTypes` exports a range of validators that can be used to make sure the data you received is valid. In this example, we are using `PropTypes.string`. When an invalid value is provided for a prop, a warning will be shown in the JavaScript console. For performance reasons, `propTypes` is only checked in development mode. If you want the complete list of validations you can go to the official documentation [here](https://facebook.github.io/react/docs/typechecking-with-proptypes.html).
 
 #### Composing Components
 
@@ -719,3 +746,92 @@ export default App;
 ```
 
 First, we are importing the new component and the object with the supplies information. Here comes the interesting stuff. In the `render` method we are creating a `<ul>` element and inside this element we are creating iterative a list of supplies. `Object.keys()` receives an object and it will return each one of the keys of that object, in this case it will return `supply1`, `supply2` and `supply3`. So, we can do a `map` over those values and therefor the `map` function receives the `key` as a parameter and creates a `<ListSupply>` element for each `key` on the `MyStockList` object. The `<ListSupply>` element receives one of the values of that object as a prop, then that component process the props and displays the content.
+
+## Controlled Components
+
+Ok let's see more components, in this case special components to manage forms. But what are the characteristics of a controlled component? they have functions to govern the data going into them on every `onChange` event, rather than grabbing the data only once. This governed data is then saved to state (in this case, the parent/container component's state). Data displayed by a controlled component is received through props passed down from its parent/container component.
+
+This is a one way loop. Data goes from child component input to parent component state and back down to the child component via props. This is what in React application architecture we call undirectional data flow.
+
+So, let's create a form component as a controlled component. Create a new file named `form.js` and copy the following code:
+
+```javascript
+import React, {Component} from 'react'
+
+class MyForm extends Component {
+  constructor(props) {
+    super(props);
+
+    this.handleChange = this.handleChange.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
+  }
+
+  handleChange(event) {
+    const target = event.target;
+    const value = target.value;
+    const name = target.name;
+    this.setState({[name]: value});
+  }
+
+  handleSubmit(event) {
+    alert('The full name submitted is ' + this.state.name + ' ' + this.state.lastName);
+    event.preventDefault();
+  }
+
+  render() {
+    return (
+      <form onSubmit={this.handleSubmit}>
+        <label>
+          Name:
+          <input type="text" name="name" onChange={this.handleChange} />
+        </label>
+        <label>
+          Last Name:
+          <input type="text" name="lastName" onChange={this.handleChange} />
+        </label>
+        <input type="submit" value="Submit" />
+      </form>
+    );
+  }
+}
+
+export default MyForm;
+```
+
+What are the interesting things on this component? Well, as we saw in the description of what a controlled component is, this component has a method to handle changes and a method to submit the form. The `handleChange` method looks for the `name` and the `value` of the form element that has changed and update the local state with that information as a pair of `key` and `value`. Note that we are using the handy ES6 computed property name syntax to update the state key corresponding to the given input name:
+
+```javascript
+this.setState({[name]: value})
+```
+
+Therefore it is important that every form element in this case has a name, so we van later access it by this name and get its corresponding value.
+
+Note that in this case there is no initial state, we don't have any pair of `name` and `value` when this component is created, this is the same as we'd have had an initial state like `this.state =  {name: null}` or something like that, not necessary at all.
+
+Ok now go to `App.js` file import our form component, place it in the `render` method and see prove it! If you for the first time leave one of the `inputs` empty and click the submit bottom you will se something like "Charlie undefined", or "undefined Brown" depending on which `input` you left empty. This is because the first time no key with `name` or `lastName` resides in the `state` of the component and in the `handleSubmit` method we are accessing that values, well maybe have always an state in our components is useful. Add that line of code to the component to confirm the change on the behavior.
+
+## Lifting State Up
+
+To share a state between two components, the most common operation is to move it up to their closest common ancestor. This is called "lifting state up", in other words removing the local state from the descendant component and move it into its ancestor instead. So, we want to have a shared state: when we update an input, an other component should reflect the change and vice versa. the descendant component become controlled. Lifting state involves writing more boilerplate code that two-way approaches, but as a benefit, it takes less work to find and isolate bugs. Since any state lives in some component and that component alone can change it, the surface area for bugs is greatly reduced.
+
+How it works? Well [here](https://facebook.github.io/react/docs/lifting-state-up.html) are a complete and an extensive tutorial on how accomplish it, but basically if we have two components each one with its own state and we want to update one of them in response to changes in the other, we need to move up both local states. This means create an ancestor component that wraps the children components with a unique source of information and pass down this information via props.
+
+## References
+
+* [Official React Documentation](https://facebook.github.io/react/)
+* [What is React](https://j11y.io/javascript/what-is-react/)
+* [Virtual DOM](https://www.codecademy.com/articles/react-virtual-dom)
+* [ReactDOM.render()](https://facebook.github.io/react/blog/2015/10/01/react-render-and-top-level-api.html)
+* [Automatic Semicolon Insertion](http://2ality.com/2011/05/semicolon-insertion.html)
+* [Camel Case Definition](https://en.wikipedia.org/wiki/Camel_case)
+* [Stateless Components](https://hackernoon.com/react-stateless-functional-components-nine-wins-you-might-have-overlooked-997b0d933dbc)
+* [Class Constructor](http://hacktivist.in/articles/React-es6-constructor-super)
+* [Render method](https://developmentarc.gitbooks.io/react-indepth/content/life_cycle/birth/component_render.html)
+* [setState()](https://medium.com/@shopsifter/using-a-function-in-setstate-instead-of-an-object-1f5cfd6e55d1)
+* [React.Component](https://facebook.github.io/react/docs/react-component.html)
+* [Node Modules](https://stackoverflow.com/questions/34526844/what-is-node-modules-directory-in-angularjs)
+* [Lifecycle Methods](https://engineering.musefind.com/react-lifecycle-methods-how-and-when-to-use-them-2111a1b692b1)
+* [Default Export](https://stackoverflow.com/questions/31852933/why-es6-react-component-works-only-with-export-default)
+* [Controlled Components](http://lorenstewart.me/2016/10/31/react-js-forms-controlled-components/)
+* [Lifting State Up](https://gerardnico.com/wiki/lang/javascript/react/shared_state)
+* [PropTypes](https://facebook.github.io/react/docs/typechecking-with-proptypes.html)
