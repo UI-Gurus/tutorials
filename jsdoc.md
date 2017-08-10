@@ -29,6 +29,10 @@ To generate the documentation:
 
 `jsdoc JavaScriptFile.js`
 
+A configuration file to generate the documentation can also be used:
+
+`jsdoc JavaScriptFile.js -c /path/to/my/conf.json`
+
 By default, the generated documentation is saved in a directory named `out`. With the `-d` option is possible to specify another directory
 
 For a complete list of command-line options run: `jsdoc --help`
@@ -217,6 +221,29 @@ This marks an object as being a function, even though it may not appear to be on
 ```JavaScript
 /** @function MyFunction */
 function MyFunction() { ... }
+```
+
+#### @memberof
+
+Identifies a member symbol that belongs to a parent symbol
+
+```JavaScript
+/**
+* @class
+* @classdesc This is a description
+*/
+class MyClass {
+  /** @constructs */
+  constructor() { ... }
+
+  /**
+  * @function myFunction
+  * @param {number} a - This the parameter of the function
+  * @return {number}
+  * @memberof MyClass
+  */
+  myFunction() { ... }
+}
 ```
 
 #### @override
